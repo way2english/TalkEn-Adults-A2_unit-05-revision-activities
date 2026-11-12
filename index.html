@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 05: The world of entertainment — онлайн-урок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f8fc;--card:#fff;--ink:#23364a;--mute:#6b7f94;--line:#dbe6f0;--blue:#3b82d6;--blue-l:#e4f0fc;--green:#27a778;--green-l:#e0f6ec;--red:#e0566a;--red-l:#fde8eb;--sun:#ffb938;--sun-l:#fff4d9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 Nunito,system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:2px solid var(--line);padding:10px 16px}
+.top{max-width:860px;margin:auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{font-size:1.1rem;margin:0;font-weight:800;flex:1;min-width:200px}
+.score{font-weight:800;background:var(--sun-l);border-radius:20px;padding:4px 14px}
+.bar{max-width:860px;margin:8px auto 0;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .4s}
+nav{max-width:860px;margin:14px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap}
+nav button{font:inherit;font-weight:700;border:2px solid var(--line);background:#fff;color:var(--ink);padding:8px 16px;border-radius:14px;cursor:pointer}
+nav button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+nav button.full::after{content:" ✔"}
+main{max-width:860px;margin:auto;padding:14px 16px 60px}
+.panel{display:none}.panel.on{display:block}
+.intro{background:var(--blue-l);border-radius:16px;padding:14px 18px;margin-bottom:16px}
+.intro p{margin:4px 0}
+.ex{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:18px}
+.ex h2{margin:0;font-size:1.15rem}
+.ex .ins{color:var(--mute);margin:2px 0 10px}
+.ex .sc{float:right;font-weight:800;color:var(--blue)}
+.item{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.item .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue-l);color:var(--blue);font-weight:800;text-align:center;line-height:28px}
+.item .b{flex:1}.item .q{margin:0 0 6px}
+.blank{display:inline-block;width:70px;border-bottom:2px solid var(--ink);margin:0 3px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap}
+.ctl button,.ctl input{font:inherit;border-radius:10px;border:2px solid var(--line);padding:6px 12px;background:#fff;color:var(--ink)}
+.ctl button{cursor:pointer;font-weight:600}
+.ctl button:hover:not(:disabled){border-color:var(--blue);background:var(--blue-l)}
+.ctl button:disabled{opacity:.45;cursor:default}
+.ctl .go{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ctl input{min-width:200px}
+.fb{margin:4px 0 0;font-weight:600;min-height:1px}
+.item.ok .n{background:var(--green);color:#fff}.item.ok .fb{color:var(--green)}
+.item.bad .n{background:var(--red);color:#fff}.item.bad .fb{color:var(--red)}
+.card{background:#fff;border:2px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:16px}
+.card h3{margin:0 0 6px}
+.who{background:var(--sun-l);border-radius:12px;padding:8px 12px;margin:8px 0}
+.ph{color:var(--blue);font-weight:600}
+.chk{display:flex;gap:10px;align-items:center;margin-top:10px;font-weight:700;cursor:pointer}
+.chk input{width:22px;height:22px;accent-color:var(--green)}
+.next{text-align:center;margin-top:8px;font-weight:800}
+.next button{font:inherit;font-weight:800;background:var(--green);color:#fff;border:none;border-radius:14px;padding:12px 24px;cursor:pointer}
+.next button:hover{filter:brightness(1.08)}
+.reset{background:none;border:none;color:var(--mute);text-decoration:underline;cursor:pointer;font:inherit}
+.rank{font-weight:800}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+ <div class="top"><h1>Unit 05: «The world of entertainment»</h1><span class="rank" id="rank"></span><span class="score">⭐ <span id="pts">0</span> / <span id="max">0</span></span></div>
+ <div class="bar"><i id="fill"></i></div>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<main style="padding-top:0;text-align:center"><button class="reset" id="reset">Почати спочатку (скинути бали)</button></main>
+<script>
+const E=(c,w)=>["Обери правильне речення.",[c],[c,w]];
+const M=(q,a,...o)=>[q,[a],[a,...o]];
+const TABS=[
+{id:'adv',name:'📈 Adverbs & Comparison',intro:'<p><b>Прислівник = прикметник + -ly:</b> quiet → quietly. Винятки: -y → <b>-ily</b> (happy → happily), -ic → <b>-ally</b> (basic → basically).</p><p>Прислівники без -ly: good → <b>well</b>, а також <b>hard, fast, early, late</b>.</p><p><b>Ступені порівняння:</b> коротке слово → <b>-er / the -est</b> (loud → louder → the loudest); -y → <b>-ier / the -iest</b>; довге слово і прислівники на -ly → <b>more / the most</b>. Особливі: good → better → the best, bad → worse → the worst, far → farther → the farthest.</p><p>🧠 Правило пальця: слово довге — ставимо <b>more</b>, слово коротке — додаємо <b>-er</b>.</p>',ex:['a1','a2','a3']},
+{id:'int',name:'💥 so / such',intro:'<p><b>so</b> + прикметник або прислівник: so loud, so loudly.</p><p><b>such a / an</b> + іменник в однині: such a talented singer, such an amazing show.</p><p><b>such</b> + множина або незлічуваний іменник: such loud drums, such great music.</p><p><b>so many</b> + множина: so many fans. <b>so much</b> + незлічуваний: so much fun.</p><p>🧠 Швидкий тест: після пропуску є іменник? Ні → <b>so</b>. Так → <b>such</b>. Його можна порахувати? Так → <b>so many</b>, ні → <b>so much</b>.</p>',ex:['b1','b2']},
+{id:'op',name:'👍 Opinions',intro:'<p>🟢 <b>Повна згода:</b> I totally agree! · I couldn\'t agree more! · You\'re absolutely right! · That\'s exactly how I feel! · Absolutely!</p><p>🟡 <b>Часткова згода:</b> I\'m on the same page. · That\'s right. · I see your point, but… · I agree to disagree.</p><p>🟠 <b>Ввічлива незгода:</b> I see things a bit differently. · I\'m afraid I have a different opinion. · I\'m not so sure about that.</p><p>🔴 <b>Сильна незгода:</b> I totally disagree! · Absolutely not! · That\'s not right!</p>',ex:['c1']},
+{id:'vocab',name:'🎤 Vocabulary',intro:'<p>Слова модуля: концерти, музика, знаменитості. Вгадуй і заробляй бали!</p>',ex:['v1','v2']},
+{id:'speak',name:'💬 Speaking',intro:'<p>Працюй у парі. Усі завдання подано українською, а розмовляти треба англійською. Виконали завдання разом — познач галочку й отримай бали.</p>',ex:[]}
+];
+const EX={
+a1:{t:'Вправа 1. Утвори прислівник',i:'Утвори прислівник від слова в дужках. Іноді потрібна форма порівняння.',items:[
+['The backup dancers moved ___ behind the lead singer. (active)',['actively']],
+['The guitarist tuned his instrument ___ before the show started. (careful)',['carefully']],
+['She sings so ___ that the whole audience stopped talking. (beautiful)',['beautifully']],
+['The orchestra played the final melody ___ than expected. (loud)',['louder','more loudly']],
+['Max spoke ___ to the box office clerk to get better seats. (polite)',['politely']],
+['They worked ___ for six months to prepare for this world tour. (hard)',['hard']],
+['The lead singer can improvise ___ during live jazz concerts. (easy)',['easily']],
+['Our music tastes are ___ the same: we both love folk music. (basic)',['basically']],
+['The DJ mixed the electronic tracks ___ at the club last night. (fantastic)',['fantastically']],
+['Racheal arrived ___ at the stadium to get a place near the stage. (early)',['early']]]},
+a2:{t:'Вправа 2. Порівняльний і найвищий ступінь',i:'Впиши правильну форму слова в дужках (наприклад: more careful, the best).',items:[
+['The acoustics in the Opera House are ___ (good) than in the open stadium.',['better']],
+['That was ___ (impressive) light show I have ever seen in my life!',['the most impressive']],
+['The tickets for the VIP fan zone cost much ___ (expensive) than regular tickets.',['more expensive']],
+['The drummer played ___ (fast) than the rest of the rock band.',['faster']],
+['Skyfall has ___ (sad) lyrics than most pop songs on the radio.',['sadder','more depressing']],
+['Which music genre do you think is ___ (popular) among teenagers today?',['the most popular']],
+['She sang her solo part ___ (clearly) than during yesterday\'s rehearsal.',['more clearly']],
+['Being late for your own performance is ___ (bad) thing that can happen to a musician.',['the worst']],
+['This stadium is ___ (big) than the one they played at last year.',['bigger']],
+['Of all the performers tonight, the K-pop group danced ___ (energetically).',['the most energetically']]]},
+a3:{t:'Вправа 3. Знайди правильне речення',i:'Яке речення без помилки?',items:[
+E("She played the piano better than her classmate during the audition.","She played the piano gooder than her classmate during the audition."),
+E("The audience clapped more loudly after the lead singer finished the solo.","The audience clapped more loud after the lead singer finished the solo."),
+E("This is the slowest song on their new album.","This is the most slow song on their new album."),
+E("He drives his car fast when he is late for a concert.","He drives his car fastly when he is late for a concert."),
+E("Their new costumes are more beautiful than the old ones.","Their new costumes are more beautifuler than the old ones."),
+E("The security check was more rigorous than we expected.","The security check was rigorouser than we expected."),
+E("Yesterday was the happiest day of my life because I got an autograph.","Yesterday was the happyest day of my life because I got an autograph."),
+E("The backup dancers performed energetically on the main stage.","The backup dancers performed energeticly on the main stage."),
+E("These seats are farther from the stage than ours.","This seats are farer from the stage than ours."),
+E("My brother listens to heavy metal more frequently than I do.","My brother listens to heavy metal more frequent than I do.")]},
+b1:{t:'Вправа 4. so, such, such a, so much чи so many?',i:'Обери слово, яке підходить.',items:[
+M("The lead singer had ___ powerful voice that everyone got goosebumps.","such a","so","such","so much"),
+M("There were ___ people in the fan zone that we couldn\'t move.","so many","so much","such","so"),
+M("I didn\'t know that learning the violin takes ___ time and practice.","so much","so many","such a","so"),
+M("The special effects during the electronic show were ___ realistic!","so","such","such a","so many"),
+M("It was ___ great performance that the crowd asked for an encore.","such a","so","such","so much"),
+M("Why did you buy ___ merch T-shirts at the concert stand?","so many","so much","such a","so"),
+M("The backup dancers moved ___ fast that it was hard to follow them.","so","such","such a","so many"),
+M("We had ___ fun at the K-pop festival yesterday!","so much","so many","such a","so"),
+M("He is ___ talented composer; he wrote his first symphony at age 12.","such a","so","such","so many"),
+M("The security guards had ___ work to do because of the huge crowd.","so much","so many","such a","so")]},
+b2:{t:'Вправа 5. Знайди правильне речення (so / such)',i:'Яке речення без помилки?',items:[
+E("It was such a loud concert that my ears hurt for hours afterwards.","It was so loud concert that my ears hurt for hours afterwards."),
+E("There were so many fans waiting near the box office for autographs.","There were so much fans waiting near the box office for autographs."),
+E("The guitarist played so fast that nobody could see his fingers.","The guitarist played such fast that nobody could see his fingers."),
+E("They spent so much money on the light show and stage decorations.","They spent so many money on the light show and stage decorations."),
+E("She is such a talented performer that she won three music awards this year.","She is so talented performer that she won three music awards this year."),
+E("I\'ve never heard such realistic special effects in such a small venue.","I\'ve never heard such realistic special effects in so small venue."),
+E("Why are you driving so slowly when the show starts in 10 minutes?","Why are you driving such slowly when the show starts in 10 minutes?"),
+E("He gave me so much good advice about tuning my acoustic guitar.","He gave me so many good advice about tuning my acoustic guitar."),
+E("The band had such a big success during their European world tour.","The band had so a big success during their European world tour."),
+E("The lyrics of this folk song are so depressing that I want to turn it off.","The lyrics of this folk song are so much depressing that I want to turn it off.")]},
+c1:{t:'Вправа 6. Згода й незгода',i:'Обери фразу, яка найкраще підходить до відповіді Speaker B.',items:[
+M("A: «Live concerts are always better than studio recordings.»<br>B: «___! Nothing compares to the energy of a real audience.»","I couldn\'t agree more","Absolutely not","I\'m afraid I have a different opinion"),
+M("A: «Classical music is boring and outdated for modern listeners.»<br>B: «___. Many film soundtracks are based on classical orchestras.»","I\'m afraid I have a different opinion","I couldn\'t agree more","That\'s exactly how I feel"),
+M("A: «Ticket prices for world tours are way too expensive.»<br>B: «___! I saved money for three months to buy one fan zone ticket.»","That\'s exactly how I feel","I totally disagree","I\'m not so sure about that"),
+M("A: «K-pop backup dancers are the most skilled performers.»<br>B: «___. We both think choreography is key in K-pop.»","I\'m on the same page","Absolutely not","I see things a bit differently"),
+M("A: «Heavy metal is just noise without any real melody.»<br>B: «___! The guitarists are talented and improvise complex solos.»","I totally disagree","You\'re absolutely right","I couldn\'t agree more"),
+M("A: «Security checks take too long and ruin the mood.»<br>B: «___, but safety is the most important thing when thousands of people gather.»","I see your point","That\'s exactly how I feel","Absolutely"),
+M("A: «Taylor Swift\'s lyrics are deeply emotional and well-written.»<br>B: «___! She is one of the best songwriters of our generation.»","You\'re absolutely right","Absolutely not","I\'m afraid I have a different opinion"),
+M("A: «Every musician should play an acoustic instrument first.»<br>B: «___. Electronic music needs completely different creative skills.»","I see things a bit differently","I couldn\'t agree more","That\'s exactly how I feel"),
+M("A: «We won\'t agree on which rock band was better tonight.»<br>B: «Fair enough. Let\'s just ___ and enjoy the evening.»","agree to disagree","agree to agree","agree on disagree"),
+M("A: «Downloading MP3 tracks is as good as watching a live show.»<br>B: «___! You miss the powerful sound, light show and crowd atmosphere.»","Absolutely not","Absolutely","That\'s right")]},
+v1:{t:'Вправа 7. Що означає слово?',i:'Обери український переклад.',items:[
+M("<b>box office</b>","каса","сцена","гардероб"),
+M("<b>wristband</b>","браслет для входу","афіша","навушники"),
+M("<b>lyrics</b>","слова пісні","мелодія","оплески"),
+M("<b>backstage</b>","за лаштунками","перед сценою","на балконі"),
+M("<b>lead singer</b>","соліст(ка)","барабанник","диригент"),
+M("<b>audience</b>","глядачі, публіка","охорона","оркестр"),
+M("<b>backup dancers</b>","танцюристи підтанцівки","технічна команда","гітаристи"),
+M("<b>security check</b>","перевірка безпеки","продаж квитків","репетиція"),
+M("<b>improvise</b>","імпровізувати","настроювати","записувати"),
+M("<b>world tour</b>","світове турне","світовий рекорд","світова прем\'єра")]},
+v2:{t:'Вправа 8. Вибери слово у речення',i:'Обери слово, яке підходить за змістом.',items:[
+M("You must pass a security ___ before entering the stadium.","check","tour","stage"),
+M("The ___ singer has a powerful and deep voice.","lead","box","backup"),
+M("After the show, I asked the singer for an ___.","autograph","orchestra","audience"),
+M("The guitarist must ___ his instrument before the show.","tune","buy","win"),
+M("The ___ played classical music with violins and flutes.","orchestra","merch","wristband"),
+M("Our seats are close to the main ___.","stage","crowd","lyrics"),
+M("I bought a T-shirt and a poster at the ___ stand.","merch","security","tour"),
+M("A big ___ of fans was waiting outside the stadium.","crowd","lyrics","vocals"),
+M("The band will ___ on stage at 8 p.m.","perform","tune","pass"),
+M("I loved the light show and the special ___.","effects","vocals","orchestra")]}
+};
+const SP=[
+{id:'s0',t:'🎫 Рольова гра A: Каса й охорона',a:'<b>Відвідувач:</b> хочеш купити квитки на концерт рок-гурту в межах світового турне. Спитай про квитки у фан-зону, ціни, обмеження на охороні (професійні камери, напої) і час початку виступу.',b:'<b>Працівник каси й охорони:</b> продай квитки, видай браслети, поясни правила безпеки (без великих сумок і напоїв) і підкажи, як дійти до головної сцени.',ph:'«Скільки коштують квитки у фан-зону?» · «Чи можна пронести фотоапарат?» · «О котрій початок?» · «Покажіть, будь ласка, сумку» · «Ось ваш браслет»'},
+{id:'s1',t:'🎸 Рольова гра B: За лаштунками',a:'<b>Фанат із VIP-квитком:</b> розкажи, як тобі сподобалось шоу, похваль потужний голос соліста, попроси автограф на постері, сфотографуйтесь і купи офіційний мерч.',b:'<b>Менеджер за лаштунками:</b> привітай фаната, стеж за часом зустрічі зі знаменитістю, нагадай, що гурту треба настроїти інструменти, роздай сувеніри.',ph:'«Це було неймовірно!» · «У вас потужний, глибокий голос» · «Можна автограф?» · «Можна сфотографуватись?» · «У нас лише п’ять хвилин»'},
+{id:'s2',t:'🎶 Рольова гра C: Організація фестивалю',a:'<b>Головний організатор:</b> запропонуй поєднати класичний оркестр з електронними бітами та великим світловим шоу. Переконай партнера.',b:'<b>Співорганізатор:</b> висловіть думку про бюджет і безпеку натовпу, ввічливо погодьтеся або не погодьтеся, запропонуйте танцюристів підтанцівки.',ph:'«Пропоную поєднати…» · «Я бачу твою думку, але…» · «Ідея чудова, але бюджет…» · «Нам потрібні танцюристи» · «Я з тобою згоден(-на)»'},
+{id:'s3',t:'🎭 Ситуації для пар 1–5',a:'1) <b>На касі:</b> ти хочеш 2 квитки у фан-зону на K-pop-концерт, але лишилися тільки місця перед головною сценою.<br>2) <b>Охорона:</b> охоронець перевіряє твою сумку перед входом на стадіон.<br>3) <b>Зустріч із музикантом:</b> ти знайомишся із саксофоністом після джазового виступу (імпровізація, автограф).<br>4) <b>Музичне відео:</b> одному подобається хореографія танцюристів, іншому — вокал.<br>5) <b>Мерч:</b> купуєш постер і футболку в кіоску, питаєш кінцеву ціну.',b:'',ph:'«Я хотів(-ла) б два квитки» · «Лишилися тільки місця…» · «Відкрийте, будь ласка, сумку» · «Ви імпровізуєте?» · «Скільки коштує постер?»'},
+{id:'s4',t:'🎭 Ситуації для пар 6–10',a:'6) <b>Загублений браслет:</b> ти загубив(-ла) браслет фан-зони в натовпі й просиш охорону про допомогу.<br>7) <b>Жанри:</b> один любить хеві-метал, інший — класичну музику. Поясніть свої смаки.<br>8) <b>Вечірка:</b> обговоріть, кого запросити на сімейне свято — діджея чи живий рок-гурт.<br>9) <b>Після турне:</b> ти береш інтерв’ю в соліста, який завершив світове турне по 20 містах.<br>10) <b>Відгук про концерт:</b> друзі обговорюють, чи варті спецефекти й світлове шоу ціни квитка.',b:'',ph:'«Я загубив(-ла) браслет» · «Я віддаю перевагу…» · «Було чудово, але…» · «Чи варті вони своїх грошей?»'},
+{id:'s5',t:'🎧 Дискусія 1: Живий концерт чи запис',a:'<b>Тема:</b> чи варто платити за дорогі квитки, якщо якісні записи безкоштовні?<br>1) Чим живий виступ особливий порівняно зі слуханням у навушниках?<br>2) Чи розчаровував(-ла) тебе колись виступ? Що пішло не так?',b:'',ph:'«З моєї точки зору…» · «Цілком з тобою згоден(-на)» · «Розумію, але…» · «Відчути силу звуку»'},
+{id:'s6',t:'🎼 Дискусія 2: Музика й характер',a:'<b>Тема:</b> чи розкриває улюблений жанр характер і стиль життя людини?<br>1) Порівняйте фанатів хеві-металу, оркестрової музики та K-pop. Чи відрізняються вони в повсякденному житті?<br>2) Чи змінився твій музичний смак, коли ти виріс(-ла)?',b:'',ph:'«На мою думку…» · «Я саме так і відчуваю» · «Я бачу це трохи інакше»'},
+{id:'s7',t:'⭐ Дискусія 3: Знаменитості й фанати',a:'<b>Тема:</b> чи мають знаменитості давати автографи, фото й зустрічі після шоу?<br>1) Чи потрібен артистам приватний час за лаштунками?<br>2) Що б ти зробив(-ла), якби виграв(-ла) VIP-пропуск до улюбленого музиканта?',b:'',ph:'«Чесно кажучи…» · «Боюся, у мене інша думка» · «Я з тобою згоден(-на)»'},
+{id:'s8',t:'🤖 Дискусія 4: Музика й технології',a:'<b>Тема:</b> чи замінить штучний інтелект живих композиторів і авторів пісень?<br>1) Чи може комп’ютерний ритм передати справжні емоції — сум або злість?<br>2) Що робить імпровізацію живих музикантів унікальною?',b:'',ph:'«Важко уявити, що…» · «Я категорично не згоден(-на)!» · «Ти абсолютно правий(-а)»'},
+{id:'s9',t:'🚧 Дискусія 5: Правила на концертах',a:'<b>Тема:</b> суворі правила на стадіонах (без професійних камер, перевірка сумок, браслети) — це необхідність чи дратівливість?<br>1) Розкажи про свій досвід проходження охорони у великому закладі.<br>2) Як організатори можуть пришвидшити вхід для величезного натовпу?',b:'',ph:'«Безпека понад усе…» · «Розумію, але…» · «Звісно!»'}
+];
+const SPPTS=10,$=(s,e=document)=>e.querySelector(s);
+let S={};try{S=JSON.parse(localStorage.getItem('u5')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('u5',JSON.stringify(S))}catch(e){}};
+const norm=s=>s.toLowerCase().replace(/[’‘`]/g,"'").replace(/[?.!]/g,'').replace(/\s+/g,' ').trim();
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function mkItem(id,i){
+ const [q,a,o,w]=EX[id].items[i],key=id+i,el=document.createElement('div');let tries=0;
+ el.className='item';
+ el.innerHTML=`<div class="n">${i+1}</div><div class="b"><p class="q">${q.replace('___','<span class="blank"></span>')}</p><div class="ctl"></div><p class="fb"></p></div>`;
+ const ctl=$('.ctl',el),fb=$('.fb',el);
+ const show=(p,ok)=>{el.classList.add(ok?'ok':'bad');ctl.innerHTML='';fb.innerHTML=(ok?`✅ +${p} б. `:`❌ Правильна відповідь: <b>${a[0]}</b>. `)+(w||'')};
+ if(S[key]!=null){show(S[key],S[key]>0);return el}
+ const check=v=>{
+  if(a.map(norm).includes(norm(v))){S[key]=tries?5:10;save();show(S[key],1);upd()}
+  else if(tries++){S[key]=0;save();show(0,0);upd()}
+  else fb.textContent='🤔 Не зовсім. Спробуй ще раз — за другу спробу 5 балів.';
+ };
+ if(o){shuf(o).forEach(t=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{b.disabled=true;check(t)};ctl.append(b)})}
+ else{const inp=document.createElement('input'),b=document.createElement('button');inp.placeholder='Твоя відповідь';inp.autocomplete='off';inp.setAttribute('aria-label','Відповідь');b.textContent='Перевірити';b.className='go';
+  const go=()=>{if(inp.value.trim())check(inp.value)};b.onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};ctl.append(inp,b)}
+ return el;
+}
+function build(){
+ const nav=$('#nav'),main=$('#main');nav.innerHTML='';main.innerHTML='';
+ TABS.forEach((t,k)=>{
+  const b=document.createElement('button');b.textContent=t.name;b.dataset.t=t.id;b.onclick=()=>open(t.id);nav.append(b);
+  const p=document.createElement('section');p.className='panel';p.id='p-'+t.id;p.innerHTML=`<div class="intro">${t.intro}</div>`;
+  t.ex.forEach(id=>{const e=EX[id],d=document.createElement('div');d.className='ex';d.id='ex-'+id;
+   d.innerHTML=`<span class="sc"></span><h2>${e.t}</h2><p class="ins">${e.i}</p>`;
+   e.items.forEach((_,i)=>d.append(mkItem(id,i)));p.append(d)});
+  if(t.id==='speak')SP.forEach(s=>{const c=document.createElement('div');c.className='card';
+   c.innerHTML=`<h3>${s.t}</h3><div class="who">${s.a}</div>${s.b?`<div class="who">${s.b}</div>`:''}<p class="ph">💬 Скажи англійською: ${s.ph}</p><label class="chk"><input type="checkbox" ${S[s.id]?'checked':''}> Ми це зробили (+${SPPTS} б.)</label>`;
+   $('input',c).onchange=e=>{if(e.target.checked)S[s.id]=SPPTS;else delete S[s.id];save();upd()};p.append(c)});
+  const nx=document.createElement('div');nx.className='next';
+  if(TABS[k+1]){const nb=document.createElement('button');nb.textContent='Далі: '+TABS[k+1].name+' →';nb.onclick=()=>open(TABS[k+1].id);nx.append(nb)}else nx.textContent='🎉 Це був останній розділ. Молодець!';
+  p.append(nx);main.append(p)});
+ open(TABS[0].id);upd();
+}
+function open(id){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===id));scrollTo(0,0)}
+function upd(){
+ let tot=0,max=0;
+ TABS.forEach(t=>{let done=true;
+  t.ex.forEach(id=>{const n=EX[id].items.length;let s=0,c=0;for(let i=0;i<n;i++){if(S[id+i]!=null){s+=S[id+i];c++}}
+   tot+=s;max+=n*10;if(c<n)done=false;$('#ex-'+id+' .sc').textContent=`${s} / ${n*10}`});
+  if(t.id==='speak'){SP.forEach(s=>{max+=SPPTS;if(S[s.id])tot+=SPPTS;else done=false})}
+  $(`nav button[data-t="${t.id}"]`).classList.toggle('full',done)});
+ $('#pts').textContent=tot;$('#max').textContent=max;$('#fill').style.width=(max?tot/max*100:0)+'%';
+ const r=max?tot/max:0;$('#rank').textContent=r>=.9?'🏆 Майстер шопінгу':r>=.7?'🥇 Чудово!':r>=.4?'🥈 Гарний прогрес':r>0?'🌱 Початок є':'';
+}
+$('#reset').onclick=()=>{if(confirm('Скинути всі бали й відповіді?')){S={};save();build()}};
+build();
+</script>
+</body>
+</html>
